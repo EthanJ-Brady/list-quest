@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
 import { socket } from "../socket";
 
 export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState("N/A");
-  const [receivedMessage, setReceivedMessage] = useState("");
+  const [gameCode, setGameCode] = useState("");
+  const [joinedGameCode, setJoinedGameCode] = useState("");
 
   useEffect(() => {
     if (socket.connected) {
@@ -29,25 +31,37 @@ export default function Home() {
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
-    socket.on("message", (data: string) => {
-      setReceivedMessage(data);
+    socket.on("joinedGame", (data: string) => {
+      setJoinedGameCode(data);
     });
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
-      socket.off("message");
+      socket.off("joinedGame");
     };
   }, []);
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (gameCode.length === 4) {
+      socket.emit("joinGame", gameCode);
+    }
+  };
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (parseInt(event.target.value, 10)) {
+      setGameCode(event.target.value);
+    }
+  };
+
   return (
     <div>
-      <p>Status: {isConnected ? "connected" : "disconnected"}</p>
-      <p>Transport: {transport}</p>
-      <button onClick={() => socket.emit("message", "hello world")}>
-        Send
-      </button>
-      <div>{receivedMessage}</div>
+      <h1>Joined Game: {joinedGameCode}</h1>
+      <form onSubmit={handleSubmit}>
+        <input name="gameCode" value={gameCode} onChange={handleChange} />
+        <button type="submit">Join Game</button>
+      </form>
     </div>
   );
 }

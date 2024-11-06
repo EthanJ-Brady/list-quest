@@ -22,9 +22,9 @@ app
     const io = new Server(httpServer);
 
     io.on("connection", (socket) => {
-      socket.on("message", (data) => {
-        console.log("Received message from client:", data);
-        socket.emit("message", `Server received: ${data}`);
+      socket.on("joinGame", async (room: string) => {
+        await socket.join(room);
+        socket.emit("joinedGame", room);
       });
     });
 
