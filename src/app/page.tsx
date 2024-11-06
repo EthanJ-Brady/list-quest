@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
-import { socket } from "../socket";
+import { socket } from "~/socket";
+import type { Game } from "~/lib/game";
 
 export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState("N/A");
   const [gameCode, setGameCode] = useState("");
-  const [joinedGameCode, setJoinedGameCode] = useState("");
+  const [game, setGame] = useState<Game | null>(null);
 
   useEffect(() => {
     if (socket.connected) {
@@ -31,8 +32,8 @@ export default function Home() {
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
-    socket.on("joinedGame", (data: string) => {
-      setJoinedGameCode(data);
+    socket.on("receiveGame", (data: Game) => {
+      setGame(data);
     });
 
     return () => {
@@ -57,7 +58,7 @@ export default function Home() {
 
   return (
     <div>
-      <h1>Joined Game: {joinedGameCode}</h1>
+      <h1>Joined Game: {game?.code}</h1>
       <form onSubmit={handleSubmit}>
         <input name="gameCode" value={gameCode} onChange={handleChange} />
         <button type="submit">Join Game</button>

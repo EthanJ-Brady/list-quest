@@ -1,12 +1,21 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
+import type { Socket } from "socket.io";
+import type { Game } from "~/lib/game";
+import { fetchGame } from "~/lib/game";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
 const port = 3000;
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
+
+const games: Game[] = [];
+
+function sendGame(socket: Socket, game: Game) {
+  socket.emit("receiveGame", game);
+}
 
 app
   .prepare()
@@ -24,7 +33,8 @@ app
     io.on("connection", (socket) => {
       socket.on("joinGame", async (room: string) => {
         await socket.join(room);
-        socket.emit("joinedGame", room);
+        const game = fetchGame(games, room);
+        sendGame(socket, game);
       });
     });
 
