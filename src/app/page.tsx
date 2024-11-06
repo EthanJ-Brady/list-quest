@@ -72,9 +72,16 @@ export default function Home() {
       {game && (
         <div>
           <div>Players:</div>
-          {game.players.map((player) => (
-            <p key={player.nickname}>{player.nickname}</p>
-          ))}
+          {game.players.map((player) => {
+            if (player.id === socket.id) {
+              return (
+                <b key={player.id}>
+                  <p>{player.nickname}</p>
+                </b>
+              );
+            }
+            return <p key={player.id}>{player.nickname}</p>;
+          })}
         </div>
       )}
     </div>
