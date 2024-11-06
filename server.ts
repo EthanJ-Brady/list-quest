@@ -16,6 +16,8 @@ const handler = app.getRequestHandler();
 const games: Game[] = [];
 const players: Player[] = [];
 
+const playerRooms = new Map<string, string>();
+
 function sendGame(socket: Socket, game: Game) {
   socket.emit("receiveGame", game);
   socket.to(game.code).emit("receiveGame", game);
@@ -40,29 +42,31 @@ app
         const game = fetchGame(games, room);
         const player = fetchPlayer(players, socket.id);
         game.players.push(player);
+
+        playerRooms.set(socket.id, room);
+
         sendGame(socket, game);
       });
 
       socket.on("setMessage", (message: string) => {
-        const rooms = Array.from(socket.rooms);
-        const gameCode = rooms[1];
-        if (!gameCode) return;
-        const game = fetchGame(games, gameCode);
+        const room = playerRooms.get(socket.id);
+        if (!room) return;
+
+        const game = fetchGame(games, room);
         game.message = message;
         sendGame(socket, game);
       });
 
       socket.on("disconnect", () => {
-        const rooms = Array.from(socket.rooms);
-        const gameCode = rooms[1];
-        if (!gameCode) return;
+        const room = playerRooms.get(socket.id);
+        if (!room) return;
 
-        const game = fetchGame(games, gameCode);
+        const game = fetchGame(games, room);
         const playerIndex = game.players.findIndex((p) => p.id === socket.id);
 
         if (playerIndex !== -1) {
           game.players.splice(playerIndex, 1);
-
+          playerRooms.delete(socket.id);
           sendGame(socket, game);
         }
       });
