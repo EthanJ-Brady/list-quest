@@ -9,6 +9,7 @@ export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState("N/A");
   const [gameCode, setGameCode] = useState("");
+  const [message, setMessage] = useState("");
   const [game, setGame] = useState<Game | null>(null);
 
   useEffect(() => {
@@ -43,26 +44,50 @@ export default function Home() {
     };
   }, []);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleJoinGame = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (gameCode.length === 4) {
       socket.emit("joinGame", gameCode);
     }
   };
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleGameCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (parseInt(event.target.value, 10)) {
       setGameCode(event.target.value);
     }
   };
 
+  const handleSetMessage = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    socket.emit("setMessage", message);
+  };
+
   return (
     <div>
       <h1>Joined Game: {game?.code}</h1>
-      <form onSubmit={handleSubmit}>
-        <input name="gameCode" value={gameCode} onChange={handleChange} />
-        <button type="submit">Join Game</button>
-      </form>
+      {!game && (
+        <form onSubmit={handleJoinGame}>
+          <input
+            name="gameCode"
+            value={gameCode}
+            onChange={handleGameCodeChange}
+          />
+          <button type="submit">Join Game</button>
+        </form>
+      )}
+      {game && (
+        <div>
+          <p>Message: {game.message}</p>
+          <form onSubmit={handleSetMessage}>
+            <input
+              name="message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+            <button type="submit">Set Message</button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

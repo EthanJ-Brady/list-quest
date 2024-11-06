@@ -15,6 +15,7 @@ const games: Game[] = [];
 
 function sendGame(socket: Socket, game: Game) {
   socket.emit("receiveGame", game);
+  socket.to(game.code).emit("receiveGame", game);
 }
 
 app
@@ -36,6 +37,15 @@ app
         const game = fetchGame(games, room);
         sendGame(socket, game);
       });
+
+      socket.on("setMessage", (message: string) => {
+        const rooms = Array.from(socket.rooms);
+        console.log(rooms);
+        if (!rooms[1]) return;
+        const game = fetchGame(games, rooms[1]);
+        game.message = message;
+        sendGame(socket, game);
+      });
     });
 
     httpServer
@@ -47,6 +57,6 @@ app
         console.log(`> Ready on http://${hostname}:${port}`);
       });
   })
-  .catch((err) => {
+  .catch((err: Error) => {
     console.log(err);
   });
