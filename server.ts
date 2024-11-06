@@ -22,7 +22,10 @@ app
     const io = new Server(httpServer);
 
     io.on("connection", (socket) => {
-      // ...
+      socket.on("message", (data) => {
+        console.log("Received message from client:", data);
+        socket.emit("message", `Server received: ${data}`);
+      });
     });
 
     httpServer
