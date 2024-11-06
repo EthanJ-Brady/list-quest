@@ -3,7 +3,9 @@ import next from "next";
 import { Server } from "socket.io";
 import type { Socket } from "socket.io";
 import type { Game } from "~/lib/game";
+import type { Player } from "~/lib/player";
 import { fetchGame } from "~/lib/game";
+import { fetchPlayer } from "~/lib/player";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -12,6 +14,7 @@ const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 
 const games: Game[] = [];
+const players: Player[] = [];
 
 function sendGame(socket: Socket, game: Game) {
   socket.emit("receiveGame", game);
@@ -35,16 +38,33 @@ app
       socket.on("joinGame", async (room: string) => {
         await socket.join(room);
         const game = fetchGame(games, room);
+        const player = fetchPlayer(players, socket.id);
+        game.players.push(player);
         sendGame(socket, game);
       });
 
       socket.on("setMessage", (message: string) => {
         const rooms = Array.from(socket.rooms);
-        console.log(rooms);
-        if (!rooms[1]) return;
-        const game = fetchGame(games, rooms[1]);
+        const gameCode = rooms[1];
+        if (!gameCode) return;
+        const game = fetchGame(games, gameCode);
         game.message = message;
         sendGame(socket, game);
+      });
+
+      socket.on("disconnect", () => {
+        const rooms = Array.from(socket.rooms);
+        const gameCode = rooms[1];
+        if (!gameCode) return;
+
+        const game = fetchGame(games, gameCode);
+        const playerIndex = game.players.findIndex((p) => p.id === socket.id);
+
+        if (playerIndex !== -1) {
+          game.players.splice(playerIndex, 1);
+
+          sendGame(socket, game);
+        }
       });
     });
 

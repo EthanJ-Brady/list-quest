@@ -1,6 +1,9 @@
+import type { Player } from "./player";
+
 export type Game = {
   code: string;
   message: string;
+  players: Player[];
 };
 
 export function fetchGame(games: Game[], code: string) {
@@ -11,6 +14,7 @@ export function fetchGame(games: Game[], code: string) {
   game = {
     code: code,
     message: "",
+    players: [],
   };
   games.push(game);
   return game;

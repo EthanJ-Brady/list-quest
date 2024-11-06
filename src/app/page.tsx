@@ -77,15 +77,10 @@ export default function Home() {
       )}
       {game && (
         <div>
-          <p>Message: {game.message}</p>
-          <form onSubmit={handleSetMessage}>
-            <input
-              name="message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-            <button type="submit">Set Message</button>
-          </form>
+          <div>Players:</div>
+          {game.players.map((player) => (
+            <p key={player.nickname}>{player.nickname}</p>
+          ))}
         </div>
       )}
     </div>
