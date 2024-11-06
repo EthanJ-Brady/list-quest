@@ -2,7 +2,6 @@ import type { Player } from "./player";
 
 export type Game = {
   roomCode: string;
-  message: string;
   players: Player[];
 };
 
@@ -13,7 +12,6 @@ export function fetchGame(games: Game[], roomCode: string) {
   }
   game = {
     roomCode: roomCode,
-    message: "",
     players: [],
   };
   games.push(game);

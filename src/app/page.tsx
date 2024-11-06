@@ -9,7 +9,6 @@ export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState("N/A");
   const [gameCode, setGameCode] = useState("");
-  const [message, setMessage] = useState("");
   const [game, setGame] = useState<Game | null>(null);
 
   useEffect(() => {
@@ -55,11 +54,6 @@ export default function Home() {
     if (parseInt(event.target.value, 10)) {
       setGameCode(event.target.value);
     }
-  };
-
-  const handleSetMessage = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    socket.emit("setMessage", message);
   };
 
   return (
