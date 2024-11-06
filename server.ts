@@ -20,7 +20,7 @@ const playerRooms = new Map<string, string>();
 
 function sendGame(socket: Socket, game: Game) {
   socket.emit("receiveGame", game);
-  socket.to(game.code).emit("receiveGame", game);
+  socket.to(game.roomCode).emit("receiveGame", game);
 }
 
 app

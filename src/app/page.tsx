@@ -64,7 +64,7 @@ export default function Home() {
 
   return (
     <div>
-      <h1>Joined Game: {game?.code}</h1>
+      <h1>Joined Game: {game?.roomCode}</h1>
       {!game && (
         <form onSubmit={handleJoinGame}>
           <input

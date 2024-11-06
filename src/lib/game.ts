@@ -1,18 +1,18 @@
 import type { Player } from "./player";
 
 export type Game = {
-  code: string;
+  roomCode: string;
   message: string;
   players: Player[];
 };
 
-export function fetchGame(games: Game[], code: string) {
-  let game = games.find((game) => game.code === code);
+export function fetchGame(games: Game[], roomCode: string) {
+  let game = games.find((game) => game.roomCode === roomCode);
   if (game) {
     return game;
   }
   game = {
-    code: code,
+    roomCode: roomCode,
     message: "",
     players: [],
   };
