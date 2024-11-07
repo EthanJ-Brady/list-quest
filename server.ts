@@ -48,12 +48,13 @@ app
         sendGame(socket, game);
       });
 
-      socket.on("setMessage", (message: string) => {
+      socket.on("setNickname", (nickname: string) => {
         const room = playerRooms.get(socket.id);
         if (!room) return;
-
         const game = fetchGame(games, room);
-        game.message = message;
+        if (!game) return;
+        const player = fetchPlayer(game.players, socket.id);
+        player.nickname = nickname;
         sendGame(socket, game);
       });
 

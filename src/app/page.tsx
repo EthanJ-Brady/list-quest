@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
 import { socket } from "~/socket";
 import type { Game } from "~/lib/game";
+import { fetchPlayer } from "~/lib/player";
 
 export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState("N/A");
   const [gameCode, setGameCode] = useState("");
   const [game, setGame] = useState<Game | null>(null);
+  const [nickname, setNickname] = useState("");
 
   useEffect(() => {
     if (socket.connected) {
@@ -34,6 +36,8 @@ export default function Home() {
     socket.on("disconnect", onDisconnect);
     socket.on("receiveGame", (data: Game) => {
       setGame(data);
+      if (!socket.id) return;
+      setNickname(fetchPlayer(data.players, socket.id).nickname);
     });
 
     return () => {
@@ -54,6 +58,13 @@ export default function Home() {
     if (parseInt(event.target.value, 10)) {
       setGameCode(event.target.value);
     }
+  };
+
+  const handleSetNickname = (formData: FormData) => {
+    const nickname = formData.get("nickname") as string;
+    if (!nickname) return;
+    if (nickname.length === 0) return;
+    socket.emit("setNickname", nickname);
   };
 
   return (
@@ -82,6 +93,15 @@ export default function Home() {
             }
             return <p key={player.id}>{player.nickname}</p>;
           })}
+          <form action={handleSetNickname}>
+            <input
+              key={socket.id}
+              name="nickname"
+              type="text"
+              placeholder={nickname}
+            />
+            <button type="submit">Change Nickname</button>
+          </form>
         </div>
       )}
     </div>
